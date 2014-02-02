@@ -1,6 +1,7 @@
 package MT::Object::Chaining::Singleton;
 
 use strict;
+use warnings;
 
 sub DESTOROY {};
 sub AUTOLOAD {
