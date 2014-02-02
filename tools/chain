@@ -1,0 +1,51 @@
+#!/usr/bin/env perl
+package MT::Tool::MT::Object::Chain;
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../extlib";
+
+use parent qw(MT::Tool);
+
+use Encode;
+
+binmode STDOUT => ':utf8';
+
+use MT;
+use MT::Object::Chaining;
+
+my ($verbose, $model, $eval);
+
+sub help {
+    q{
+        --model   model (object datasource)
+        --eval    eval string (a perl program)
+    };
+}
+
+sub usage {
+    my $usage = <<'USAGE';
+[--model <model>] --eval <string>
+
+example:
+  tools/chain -m entry -e '$model->load->each(sub { $_->title })';
+USAGE
+}
+
+sub options {
+    ( 'model=s' => \$model, 'eval=s' => \$eval );
+}
+
+sub main {
+    my $self = shift;
+    $self->SUPER::main(@_);
+    my $model = MT->instance->model($model)->chain;
+    my $result = eval $eval or die $@;
+    print "$result\n";
+}
+
+__PACKAGE__->main unless caller;
+
+1;
