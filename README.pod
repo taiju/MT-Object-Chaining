@@ -97,7 +97,9 @@ Alias for reduce.
     MT->model('entry')->chain->load->eq(0)->tap(sub { print MT::Util::YAML::Dump(shift->to_hash) });
 
 =head2 $singleton->dump
+
 =head2 $singleton->yaml
+
 =head2 $singleton->json
 
     MT->model('entry')->chain->load->eq(0)->dump;
