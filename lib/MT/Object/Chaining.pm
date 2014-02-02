@@ -127,15 +127,13 @@ It's provide useful methods for methods chaining with MT::Object.
 
 =head1 METHODS
 
-=head2 load(\%terms, \%args)
+=head2 $model->load(\%terms, \%args)
 
     MT->model('entry')->chain
       ->load({ status => MT::Entry::RELEASE }, { sort => 'created_by' })
       ->dump;
 
-Return MT::Object::Chaining::Singleton instance.
-
-=head2 new(\%values)
+=head2 $model->new(\%values)
 
     MT->model('entry')->chain
       ->new
@@ -144,59 +142,79 @@ Return MT::Object::Chaining::Singleton instance.
       ->text('foo!!')
       ->save;
 
-=head2 tap(\&callback)
+=head2 $model->tap(\&callback)
 
     MT->model('entry')->chain
       ->load
       ->tap( sub { warn join ',', map { $_->title } @{$_[0]} } );
 
-=head2 eq($index)
+=head2 $model->eq($index)
 
     MT->model('entry')->chain->load->eq(0)
 
-=head2 save
+=head2 $model->save
 
     MT->model('entry')->chain->load->map(author_id => sub { 1 })->save;
 
-=head2 dump($field)
+=head2 $model->dump($field)
 
     MT->model('entry')->chain->load->dump;
     MT->model('entry')->chain->load->dump('title');
 
-=head2 yaml($field)
+=head2 $model->yaml($field)
 
     MT->model('entry')->chain->load->yaml;
     MT->model('entry')->chain->load->yaml('title');
 
-=head2 json($field)
+=head2 $model->json($field)
 
     MT->model('entry')->chain->load->json;
     MT->model('entry')->chain->load->json('title');
 
-=head2 each($field, \&callback)
+=head2 $model->each($field, \&callback)
 
     MT->model('entry')->chain->load->each(title => sub { print shift . "\n" });
     MT->model('entry')->chain->load->each(sub { print $_->id . ': ' . $_->title . "\n" });
 
-=head2 map($field, \&callback) 
+=head2 $model->map($field, \&callback)
 
     MT->model('entry')->chain->load->map(author_id => sub { 1 })->save
 
-=head2 grep($field, \&callback)
+=head2 $model->grep($field, \&callback)
 
     MT->model('entry')->chain->load->grep(status => 2)
 
-=head2 filter($field, \&callback)
+=head2 $model->filter($field, \&callback)
 
-Alias grep
+Alias for grep
 
-=head2 reduce($field, \&callback, $initialize)
+=head2 $model->reduce($field, \&callback, $initialize)
 
     MT->model('entry')->chain->load->reduce(title => sub { shift . ', ' . shift });
 
-=head2 inject($field, \&callback, $initialize)
+=head2 $model->inject($field, \&callback, $initialize)
 
-Alias reduce.
+Alias for reduce.
+
+=head2 $singleton->tap(\&callback)
+
+    MT->model('entry')->chain->load->eq(0)->tap(sub { print MT::Util::YAML::Dump(shift->to_hash) });
+
+=head2 $singleton->dump
+=head2 $singleton->yaml
+=head2 $singleton->json
+
+    MT->model('entry')->chain->load->eq(0)->dump;
+    MT->model('entry')->chain->load->eq(0)->yaml;
+    MT->model('entry')->chain->load->eq(0)->json;
+
+=head2 $singleton->value($field)
+
+    MT->model('entry')->chain->load->eq(0)->value('title');
+
+=head2 $singleton->$column
+
+All of MT::Object methods return MT::Object::Chaining::Singleton instance.
 
 =head1 TOOLS
 
