@@ -77,23 +77,28 @@ sub each {
 }
 
 sub map {
-  my ($self, $field, $cb) = @_;
-  $_->$field($cb->($_->$field)) for @{$self->{_objs}};
+  my $self = shift;
+  my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
+  $field ? $_->$field($cb->($_->$field)) : $_->set_values($cb->($_->get_values)) for @{$self->{_objs}};
   $self;
 }
 
 sub grep {
-  my ($self, $field, $cb) = @_;
-  $self->{_objs} = [grep { $cb->($_->$field) } @{$self->{_objs}}];
+  my $self = shift;
+  my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
+  $self->{_objs} = [grep { $field ? $cb->($_->$field) : $cb->($_->get_values) } @{$self->{_objs}}];
   $self;
 }
 *filter = \&grep;
 
 sub reduce {
-  my ($self, $field, $cb, $init) = @_;
-  my $accum = defined($init) ? $init : (shift @{$self->{_objs}})->$field;
+  my $self = shift;
+  my ($field, $cb, $init) = ref $_[0] eq 'CODE' ? (undef, @_) : @_;
+  my $accum = defined($init) ? $init :
+              $field ? (shift @{$self->{_objs}})->$field :
+              (shift @{$self->{_objs}})->get_values;
   for my $obj (@{$self->{_objs}}) {
-    $accum = $cb->($accum, $obj->$field);
+    $accum = $cb->($accum, $field ? $obj->$field : $obj->get_values);
   }
   $accum;
 }
@@ -179,10 +184,12 @@ It's provide useful methods for methods chaining with MT::Object.
 =head2 $model->map($field, \&callback)
 
     MT->model('entry')->chain->load->map(author_id => sub { 1 })->save
+    MT->model('entry')->chain->load->map(sub { $_->{author_id} = 1; $_ })->save
 
 =head2 $model->grep($field, \&callback)
 
-    MT->model('entry')->chain->load->grep(status => 2)
+    MT->model('entry')->chain->load->grep(status => sub { 2 })
+    MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->save
 
 =head2 $model->filter($field, \&callback)
 
@@ -191,6 +198,7 @@ Alias for grep
 =head2 $model->reduce($field, \&callback, $initialize)
 
     MT->model('entry')->chain->load->reduce(title => sub { shift . ', ' . shift });
+    MT->model('entry')->chain->load->reduce(sub { my ($x, $y) = @_; (ref $x eq 'HASH' ? $x->{title} : $x) . ', ' . $y->{title} });
 
 =head2 $model->inject($field, \&callback, $initialize)
 

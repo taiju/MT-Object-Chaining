@@ -75,10 +75,12 @@ It's provide useful methods for methods chaining with MT::Object.
 =head2 $model->map($field, \&callback)
 
     MT->model('entry')->chain->load->map(author_id => sub { 1 })->save
+    MT->model('entry')->chain->load->map(sub { $_->{author_id} = 1; $_ })->save
 
 =head2 $model->grep($field, \&callback)
 
-    MT->model('entry')->chain->load->grep(status => 2)
+    MT->model('entry')->chain->load->grep(status => sub { 2 })
+    MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->save
 
 =head2 $model->filter($field, \&callback)
 
@@ -87,6 +89,7 @@ Alias for grep
 =head2 $model->reduce($field, \&callback, $initialize)
 
     MT->model('entry')->chain->load->reduce(title => sub { shift . ', ' . shift });
+    MT->model('entry')->chain->load->reduce(sub { my ($x, $y) = @_; (ref $x eq 'HASH' ? $x->{title} : $x) . ', ' . $y->{title} });
 
 =head2 $model->inject($field, \&callback, $initialize)
 
