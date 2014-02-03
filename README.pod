@@ -10,7 +10,7 @@ MT::Object::Chaining - Methods chaining for MT::Object.
 
     MT->model('entry')->chain                                  # Start method chaining
         ->load({ blog_id => 1, status => MT::Entry::RELEASE }) # Oops, I forgot author_id in terms
-        ->grep(author_id => sub { shift eq 1 })                # Filtering author_id = 1
+        ->grep(author_id => sub { shift == 1 })                # Filtering author_id = 1
         ->map(author_id => sub { 2 })                          # Mapping from author_id = 1 to author_id = 2
         ->save                                                 # Sync db
         ->dump;                                                # Dump objects
@@ -79,7 +79,7 @@ It's provide useful methods for methods chaining with MT::Object.
 
 =head2 $model->grep($field, \&callback)
 
-    MT->model('entry')->chain->load->grep(status => sub { 2 })
+    MT->model('entry')->chain->load->grep(status => sub { shift == 2 })
     MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->save
 
 =head2 $model->filter($field, \&callback)
