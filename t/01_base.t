@@ -40,7 +40,7 @@ is_deeply JSON::from_json($chained->map(title => sub { 'test' })->json), [map { 
 $chained = MT->model('entry')->chain->load;
 @entries = MT->model('entry')->load;
 
-is_deeply JSON::from_json($chained->map(sub { $_->title('test'); $_->get_values })->json), [map { $_->title('test'); $_->get_values } @entries];
+is_deeply JSON::from_json($chained->map(sub { $_[0]->{title} = 'test'; $_[0]; })->json), [map { $_->title('test'); $_->get_values } @entries];
 $chained = MT->model('entry')->chain->load;
 @entries = MT->model('entry')->load;
 

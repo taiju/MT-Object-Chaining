@@ -26,7 +26,7 @@ It's provide useful methods for methods chaining with MT::Object.
 =head2 $model->load(\%terms, \%args)
 
     MT->model('entry')->chain
-      ->load({ status => MT::Entry::RELEASE }, { sort => 'created_by' })
+      ->load({ status => MT::Entry::RELEASE }, { sort => 'created_on' })
       ->dump;
 
 =head2 $model->new(\%values)
@@ -46,7 +46,7 @@ It's provide useful methods for methods chaining with MT::Object.
 
 =head2 $model->eq($index)
 
-    MT->model('entry')->chain->load->eq(0)
+    MT->model('entry')->chain->load->eq(0);
 
 =head2 $model->sync
 
@@ -74,17 +74,17 @@ Alias for sync
 =head2 $model->each($field, \&callback)
 
     MT->model('entry')->chain->load->each(title => sub { print shift . "\n" });
-    MT->model('entry')->chain->load->each(sub { print $_->id . ': ' . $_->title . "\n" });
+    MT->model('entry')->chain->load->each(sub { print $_[0]->{id} . ': ' . $_[0]->{title} . "\n" });
 
 =head2 $model->map($field, \&callback)
 
-    MT->model('entry')->chain->load->map(author_id => sub { 1 })->sync
-    MT->model('entry')->chain->load->map(sub { $_->{author_id} = 1; $_ })->sync
+    MT->model('entry')->chain->load->map(author_id => sub { 1 })->sync;
+    MT->model('entry')->chain->load->map(sub { $_[0]->{author_id} = 1; $_[0] })->sync;
 
 =head2 $model->grep($field, \&callback)
 
-    MT->model('entry')->chain->load->grep(status => sub { shift == 2 })
-    MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->sync
+    MT->model('entry')->chain->load->grep(status => sub { shift == 2 });
+    MT->model('entry')->chain->load->grep(sub { $_[0]->{status} == 2 });
 
 =head2 $model->filter($field, \&callback)
 
