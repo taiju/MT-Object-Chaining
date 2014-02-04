@@ -68,4 +68,16 @@ $titles = [];
 $chained->each(sub { push @$titles, shift->{title} });
 is_deeply $titles, [map { $_->title } @entries];
 
+my @old_entries = MT->model('entry')->load;
+$chained->map(author_id => sub { 3 })->save;
+my @new_entries = MT->model('entry')->load;
+
+isnt((join ',', map { $_->author_id } @old_entries), (join ',', map { $_->author_id } @new_entries));
+
+@old_entries = MT->model('entry')->load;
+$chained->map(author_id => sub { 2 })->sync;
+@new_entries = MT->model('entry')->load;
+
+isnt((join ',', map { $_->author_id } @old_entries), (join ',', map { $_->author_id } @new_entries));
+
 done_testing;

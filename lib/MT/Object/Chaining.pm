@@ -47,11 +47,12 @@ sub eq {
     MT::Object::Chaining::Singleton->new($self->{_objs}->[$index]);
 }
 
-sub save {
+sub sync {
   my $self = shift;
   $_->save or die $_->errstr for @{$self->{_objs}};
   $self;
 }
+*save = \&sync;
 
 sub _serializer {
     my $method = shift;
@@ -122,7 +123,7 @@ MT::Object::Chaining - Methods chaining for MT::Object.
         ->load({ blog_id => 1, status => MT::Entry::RELEASE }) # Oops, I forgot author_id in terms
         ->grep(author_id => sub { shift == 1 })                # Filtering author_id = 1
         ->map(author_id => sub { 2 })                          # Mapping from author_id = 1 to author_id = 2
-        ->save                                                 # Sync db
+        ->sync                                                 # Sync db
         ->dump;                                                # Dump objects
 
 =head1 DESCRIPTION
@@ -146,7 +147,7 @@ It's provide useful methods for methods chaining with MT::Object.
       ->basename('foo')
       ->title('foo')
       ->text('foo!!')
-      ->save;
+      ->sync;
 
 =head2 $model->tap(\&callback)
 
@@ -158,9 +159,13 @@ It's provide useful methods for methods chaining with MT::Object.
 
     MT->model('entry')->chain->load->eq(0)
 
+=head2 $model->sync
+
+    MT->model('entry')->chain->load->map(author_id => sub { 1 })->sync;
+
 =head2 $model->save
 
-    MT->model('entry')->chain->load->map(author_id => sub { 1 })->save;
+Alias for sync
 
 =head2 $model->dump($field)
 
@@ -184,13 +189,13 @@ It's provide useful methods for methods chaining with MT::Object.
 
 =head2 $model->map($field, \&callback)
 
-    MT->model('entry')->chain->load->map(author_id => sub { 1 })->save
-    MT->model('entry')->chain->load->map(sub { $_->{author_id} = 1; $_ })->save
+    MT->model('entry')->chain->load->map(author_id => sub { 1 })->sync
+    MT->model('entry')->chain->load->map(sub { $_->{author_id} = 1; $_ })->sync
 
 =head2 $model->grep($field, \&callback)
 
     MT->model('entry')->chain->load->grep(status => sub { shift == 2 })
-    MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->save
+    MT->model('entry')->chain->load->map(sub { $_->{status} == 2 })->sync
 
 =head2 $model->filter($field, \&callback)
 
