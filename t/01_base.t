@@ -39,37 +39,31 @@ is_deeply JSON::from_json($chained->json('title')), [map { $_->title } @entries]
 is_deeply JSON::from_json($chained->map(title => sub { 'test' })->json), [map { $_->title('test'); $_->get_values } @entries];
 $chained = MT->model('entry')->chain->load;
 @entries = MT->model('entry')->load;
+
 is_deeply JSON::from_json($chained->map(sub { $_->title('test'); $_->get_values })->json), [map { $_->title('test'); $_->get_values } @entries];
 $chained = MT->model('entry')->chain->load;
 @entries = MT->model('entry')->load;
+
 my @filtered_entries = MT->model('entry')->load({author_id => 2});
 is_deeply JSON::from_json($chained->grep(author_id => sub { shift == 2 })->json), [map { $_->get_values } @filtered_entries];
+$chained = MT->model('entry')->chain->load;
 is_deeply JSON::from_json($chained->grep(sub { shift->{author_id} == 2 })->json), [map { $_->get_values } @filtered_entries];
+$chained = MT->model('entry')->chain->load;
 is_deeply JSON::from_json($chained->filter(author_id => sub { shift == 2 })->json), [map { $_->get_values } @filtered_entries];
 $chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
+
 is $chained->reduce(title => sub { shift . "," . shift }), join ',', map { $_->title } @entries;
-$chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
 is $chained->reduce(sub { my ($x, $y) = @_; (ref $x eq 'HASH' ? $x->{title} : $x) . ',' . $y->{title} }), join ',', map { $_->title } @entries;
-$chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
 is $chained->inject(title => sub { shift . "," . shift }), join ',', map { $_->title } @entries;
 
-$chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
 my $objs = [];
 $chained->tap(sub { $objs = shift });
 is_deeply [map { $_->get_values } @$objs], [map { $_->get_values } @entries];
 
-$chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
 my $titles = [];
 $chained->each(title => sub { push @$titles, shift });
 is_deeply $titles, [map { $_->title } @entries];
 
-$chained = MT->model('entry')->chain->load;
-@entries = MT->model('entry')->load;
 $titles = [];
 $chained->each(sub { push @$titles, shift->value('title') });
 is_deeply $titles, [map { $_->title } @entries];
