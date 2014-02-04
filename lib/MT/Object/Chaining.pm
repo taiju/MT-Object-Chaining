@@ -72,7 +72,7 @@ sub _serializer {
 sub each {
     my $self = shift;
     my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
-    $field ? $cb->($_) : $cb->(MT::Object::Chaining::Singleton->new($_)) for @{$self->{_objs}};
+    $field ? $cb->($_->$field) : $cb->(MT::Object::Chaining::Singleton->new($_)) for @{$self->{_objs}};
     $self;
 }
 
