@@ -65,7 +65,7 @@ $chained->each(title => sub { push @$titles, shift });
 is_deeply $titles, [map { $_->title } @entries];
 
 $titles = [];
-$chained->each(sub { push @$titles, shift->value('title') });
+$chained->each(sub { push @$titles, shift->{title} });
 is_deeply $titles, [map { $_->title } @entries];
 
 done_testing;
