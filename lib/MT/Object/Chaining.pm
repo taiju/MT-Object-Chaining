@@ -77,30 +77,31 @@ sub each {
 }
 
 sub map {
-  my $self = shift;
-  my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
-  $field ? $_->$field($cb->($_->$field)) : $_->set_values($cb->($_->get_values)) for @{$self->{_objs}};
-  $self;
+    my $self = shift;
+    my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
+    $field ? $_->$field($cb->($_->$field)) : $_->set_values($cb->($_->get_values)) for @{$self->{_objs}};
+    $self;
 }
 
 sub grep {
-  my $self = shift;
-  my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
-  $self->{_objs} = [grep { $field ? $cb->($_->$field) : $cb->($_->get_values) } @{$self->{_objs}}];
-  $self;
+    my $self = shift;
+    my ($field, $cb) = ref $_[0] eq 'CODE' ? (undef, $_[0]) : @_;
+    $self->{_objs} = [grep { $field ? $cb->($_->$field) : $cb->($_->get_values) } @{$self->{_objs}}];
+    $self;
 }
 *filter = \&grep;
 
 sub reduce {
-  my $self = shift;
-  my ($field, $cb, $init) = ref $_[0] eq 'CODE' ? (undef, @_) : @_;
-  my $accum = defined($init) ? $init :
-              $field ? (shift @{$self->{_objs}})->$field :
-              (shift @{$self->{_objs}})->get_values;
-  for my $obj (@{$self->{_objs}}) {
-    $accum = $cb->($accum, $field ? $obj->$field : $obj->get_values);
-  }
-  $accum;
+    my $self = shift;
+    my ($field, $cb, $init) = ref $_[0] eq 'CODE' ? (undef, @_) : @_;
+    my ($first, @rest) = @{$self->{_objs}};
+    my $accum = defined($init) ? $init :
+                $field ? $first->$field :
+                $first->get_values;
+    for my $obj (@rest) {
+        $accum = $cb->($accum, $field ? $obj->$field : $obj->get_values);
+    }
+    $accum;
 }
 *inject = \&reduce;
 
