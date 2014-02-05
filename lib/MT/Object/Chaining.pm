@@ -35,6 +35,11 @@ sub load {
     $self;
 }
 
+sub get_by_key {
+    my $self = shift;
+    MT::Object::Chaining::Singleton->new($self->{class}->get_by_key(@_));
+}
+
 sub tap {
     my ($self, $cb) = @_;
     return $self unless $self->{_objs};
@@ -145,6 +150,14 @@ It's provide useful methods for methods chaining with MT::Object.
     MT->model('entry')->chain
       ->new
       ->basename('foo')
+      ->title('foo')
+      ->text('foo!!')
+      ->sync;
+
+=head2 $model->get_by_key(\%values)
+
+    MT->model('entry')->chain
+      ->get_by_key({ basename => 'foo' })
       ->title('foo')
       ->text('foo!!')
       ->sync;

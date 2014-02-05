@@ -12,6 +12,7 @@ use MT::Object::Chaining;
 
 isa_ok(MT->model('entry')->chain, 'MT::Object::Chaining');
 isa_ok(MT->model('entry')->chain->new, 'MT::Object::Chaining::Singleton');
+isa_ok(MT->model('entry')->chain->get_by_key({ id => 1 }), 'MT::Object::Chaining::Singleton');
 isa_ok(MT->model('entry')->chain->load, 'MT::Object::Chaining');
 
 my $entry = MT->model('entry')->load;
@@ -36,6 +37,14 @@ is_deeply YAML::Syck::Load($chained->yaml('title')), [map { $_->title } @entries
 is_deeply JSON::from_json($chained->json), [map { $_->get_values } @entries];
 is_deeply JSON::from_json($chained->json('title')), [map { $_->title } @entries];
 
+my $titles = [];
+$chained->each(title => sub { push @$titles, shift });
+is_deeply $titles, [map { $_->title } @entries];
+
+$titles = [];
+$chained->each(sub { push @$titles, shift->{title} });
+is_deeply $titles, [map { $_->title } @entries];
+
 is_deeply JSON::from_json($chained->map(title => sub { 'test' })->json), [map { $_->title('test'); $_->get_values } @entries];
 $chained = MT->model('entry')->chain->load;
 @entries = MT->model('entry')->load;
@@ -59,14 +68,6 @@ is $chained->inject(title => sub { shift . "," . shift }), join ',', map { $_->t
 my $objs = [];
 $chained->tap(sub { $objs = shift });
 is_deeply [map { $_->get_values } @$objs], [map { $_->get_values } @entries];
-
-my $titles = [];
-$chained->each(title => sub { push @$titles, shift });
-is_deeply $titles, [map { $_->title } @entries];
-
-$titles = [];
-$chained->each(sub { push @$titles, shift->{title} });
-is_deeply $titles, [map { $_->title } @entries];
 
 my @old_entries = MT->model('entry')->load;
 $chained->map(author_id => sub { 3 })->save;

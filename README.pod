@@ -38,6 +38,14 @@ It's provide useful methods for methods chaining with MT::Object.
       ->text('foo!!')
       ->sync;
 
+=head2 $model->get_by_key(\%values)
+
+    MT->model('entry')->chain
+      ->get_by_key({ basename => 'foo' })
+      ->title('foo')
+      ->text('foo!!')
+      ->sync;
+
 =head2 $model->tap(\&callback)
 
     MT->model('entry')->chain
